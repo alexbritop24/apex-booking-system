@@ -1,21 +1,48 @@
+// apps/web/src/App.tsx
+
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+} from "react-router-dom";
+
 import Sidebar from "./components/Sidebar";
-import TopBar from "./components/TopBar";
 import Dashboard from "./pages/Dashboard";
-import ChatWidget from "./components/ChatWidget";
+import AutomationsPage from "./pages/Automations";
+import NewAutomationForm from "./components/NewAutomationForm";
+import AutomationDetails from "./pages/AutomationDetails";
+import EditAutomationForm from "./pages/EditAutomationForm";
 
 export default function App() {
   return (
-    <div className="flex bg-[#0b0f19] min-h-screen">
-      <Sidebar />
+    <Router>
+      <div className="flex w-full min-h-screen bg-[#0b1120] text-white">
 
-      <div className="flex flex-col flex-1">
-        <TopBar />
-        <Dashboard />
+        {/* Sidebar */}
+        <Sidebar />
+
+        {/* Main content */}
+        <div className="flex-1 p-8">
+          <Routes>
+
+            {/* Dashboard */}
+            <Route path="/" element={<Dashboard />} />
+
+            {/* Automations list */}
+            <Route path="/automations" element={<AutomationsPage />} />
+
+            {/* Create new automation */}
+            <Route path="/automations/new" element={<NewAutomationForm />} />
+
+            {/* Automation details */}
+            <Route path="/automations/:id" element={<AutomationDetails />} />
+
+            {/* 🔥 Edit automation */}
+            <Route path="/automations/:id/edit" element={<EditAutomationForm />} />
+
+          </Routes>
+        </div>
       </div>
-
-      <ChatWidget />
-    </div>
+    </Router>
   );
 }
-
-

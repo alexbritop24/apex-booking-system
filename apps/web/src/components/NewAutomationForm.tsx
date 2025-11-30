@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { saveAutomation } from "../services/saveAutomation";
 
 const automationTypes = [
   {
@@ -31,6 +32,7 @@ export default function NewAutomationForm() {
   const [name, setName] = useState("New Booking Flow");
   const [serviceLength, setServiceLength] = useState("60");
   const [requiresDeposit, setRequiresDeposit] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
 
   const currentType = automationTypes.find((t) => t.id === selectedType);
 
@@ -45,6 +47,29 @@ export default function NewAutomationForm() {
   const handleBack = () => {
     if (step > 0) {
       setStep(step - 1);
+    }
+  };
+
+  const handleSave = async () => {
+    setIsSaving(true);
+
+    const payload = {
+      type: selectedType,
+      name,
+      serviceLength: Number(serviceLength),
+      requiresDeposit,
+      createdAt: new Date().toISOString(),
+    };
+
+    const result = await saveAutomation(payload);
+
+    setIsSaving(false);
+
+    if (result.success) {
+      alert("Automation saved successfully!");
+      // OPTIONAL: Close panel or reset form later
+    } else {
+      alert("Error saving automation. Check console.");
     }
   };
 
@@ -82,9 +107,7 @@ export default function NewAutomationForm() {
       {/* Step content */}
       {step === 0 && (
         <div className="space-y-4">
-          <h3 className="text-lg font-semibold">
-            What do you want to automate?
-          </h3>
+          <h3 className="text-lg font-semibold">What do you want to automate?</h3>
           <p className="text-gray-400 text-sm">
             Choose the type of automation. You can create multiple later.
           </p>
@@ -119,10 +142,9 @@ export default function NewAutomationForm() {
           </p>
 
           <div className="space-y-3 mt-2 text-sm">
+            {/* Name */}
             <div>
-              <label className="block text-gray-300 mb-1">
-                Automation name
-              </label>
+              <label className="block text-gray-300 mb-1">Automation name</label>
               <input
                 value={name}
                 onChange={(e) => setName(e.target.value)}
@@ -130,6 +152,7 @@ export default function NewAutomationForm() {
               />
             </div>
 
+            {/* Service length */}
             <div>
               <label className="block text-gray-300 mb-1">
                 Default service length (minutes)
@@ -142,6 +165,7 @@ export default function NewAutomationForm() {
               />
             </div>
 
+            {/* Deposit toggle */}
             <div className="flex items-center gap-2 mt-2">
               <input
                 id="deposit"
@@ -162,8 +186,8 @@ export default function NewAutomationForm() {
         <div className="space-y-4 text-sm">
           <h3 className="text-lg font-semibold">Review & save</h3>
           <p className="text-gray-400">
-            Here’s how this automation will behave. Later, the AI engine will
-            use this as the base configuration.
+            Here’s how this automation will behave. The AI engine will use this
+            as the base configuration.
           </p>
 
           <div className="bg-[#141b29] border border-white/10 rounded-lg p-4 space-y-2">
@@ -192,9 +216,7 @@ export default function NewAutomationForm() {
           </div>
 
           <div className="bg-[#0f1623] border border-dashed border-[#4F8BFF]/60 rounded-lg p-4 mt-3">
-            <div className="text-xs text-gray-300 mb-2">
-              Example AI message:
-            </div>
+            <div className="text-xs text-gray-300 mb-2">Example AI message:</div>
             <div className="text-xs text-gray-200 italic">
               “Great! I can book that for you. Our {name.toLowerCase()} is{" "}
               {serviceLength} minutes. To secure your spot, a{" "}
@@ -207,6 +229,7 @@ export default function NewAutomationForm() {
 
       {/* Footer actions */}
       <div className="flex justify-between pt-2 border-t border-white/10 mt-4">
+        {/* Back button */}
         <button
           type="button"
           onClick={handleBack}
@@ -220,6 +243,7 @@ export default function NewAutomationForm() {
           Back
         </button>
 
+        {/* Next / Save */}
         <div className="flex gap-2">
           {step < steps.length - 1 && (
             <button
@@ -237,9 +261,10 @@ export default function NewAutomationForm() {
           {step === steps.length - 1 && (
             <button
               type="button"
+              onClick={handleSave}
               className="text-sm px-4 py-2 rounded-lg bg-green-500 text-white font-medium"
             >
-              Save Automation (MVP)
+              {isSaving ? "Saving..." : "Save Automation (MVP)"}
             </button>
           )}
         </div>
