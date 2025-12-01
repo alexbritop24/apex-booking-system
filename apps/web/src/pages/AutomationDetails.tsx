@@ -25,12 +25,20 @@ export default function AutomationDetails() {
     async function load() {
       if (!id) return;
 
-      const ref = doc(db, "automations", id);
-      const snap = await getDoc(ref);
+      try {
+        const ref = doc(db, "automations", id);
+        const snap: any = await getDoc(ref); // TS fix: added :any
 
-      if (snap.exists()) {
-        setAutomation({ id: snap.id, ...snap.data() } as Automation);
-      } else {
+        if (snap.exists()) {
+          setAutomation({
+            id: snap.id,
+            ...snap.data(),
+          } as Automation);
+        } else {
+          setAutomation(null);
+        }
+      } catch (error) {
+        console.error("Error loading automation:", error);
         setAutomation(null);
       }
 
@@ -106,7 +114,7 @@ export default function AutomationDetails() {
         Edit Automation
       </button>
 
-      {/* Delete (activated in Step 3) */}
+      {/* Delete */}
       <button
         className="px-4 py-2 rounded-lg bg-red-500 text-white font-medium ml-3"
         onClick={() => alert("Delete function coming in Step 3")}

@@ -1,3 +1,5 @@
+// apps/web/src/services/automationService.ts
+
 import {
   collection,
   addDoc,
@@ -18,14 +20,19 @@ export async function saveAutomation(data: any) {
 
 // READ ALL
 export async function getAutomations() {
-  const snapshot = await getDocs(collection(db, COLLECTION));
-  return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
+  const snapshot: any = await getDocs(collection(db, COLLECTION));
+
+  return snapshot.docs.map((d: any) => ({
+    id: d.id,
+    ...d.data(),
+  }));
 }
 
 // READ ONE
 export async function getAutomationById(id: string) {
   const ref = doc(db, COLLECTION, id);
-  const snap = await getDoc(ref);
+  const snap: any = await getDoc(ref);
+
   return snap.exists() ? { id: snap.id, ...snap.data() } : null;
 }
 

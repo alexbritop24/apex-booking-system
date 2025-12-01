@@ -31,9 +31,11 @@ export default function AutomationsPage() {
       orderBy("createdAt", "desc")
     );
 
-    const unsubscribe = onSnapshot(q, (snapshot) => {
+    // TS fix: snapshot/doc typed as any so TS7006 goes away
+    const unsubscribe = onSnapshot(q, (snapshot: any) => {
       const list: Automation[] = [];
-      snapshot.forEach((doc) => {
+
+      snapshot.forEach((doc: any) => {
         list.push({
           id: doc.id,
           ...doc.data(),
