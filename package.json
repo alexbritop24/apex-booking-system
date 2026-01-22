@@ -6,7 +6,8 @@
     "apps/*",
     "packages/*"
   ],
-  "scripts": {
+"scripts": {
+    "dev": "npm run dev --workspace=@apex/web",
     "dev:web": "npm run dev --workspace=@apex/web",
     "dev:api": "npm run dev --workspace=@apex/api"
   },

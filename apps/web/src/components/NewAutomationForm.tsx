@@ -1,272 +1,237 @@
 import { useState } from "react";
-import { saveAutomation } from "../services/saveAutomation";
-
-const automationTypes = [
-  {
-    id: "booking",
-    label: "AI Booking Flow",
-    description: "Let clients book appointments 24/7 through your AI assistant.",
-  },
-  {
-    id: "deposit",
-    label: "Deposit & No-Show Protection",
-    description: "Collect deposits automatically and reduce ghosting.",
-  },
-  {
-    id: "upsell",
-    label: "Upsell Add-ons",
-    description: "Offer add-ons like brow tint, beard trim, or nail art.",
-  },
-  {
-    id: "reviews",
-    label: "Review Requests",
-    description: "Automatically ask happy clients to leave Google reviews.",
-  },
-];
-
-const steps = ["Automation type", "Details", "Review & Save"];
+import { useNavigate } from "react-router-dom";
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { db } from "../firebase/firebaseConfig";
+import { X, Calendar, DollarSign, Clock, Star, Check } from "lucide-react";
 
 export default function NewAutomationForm() {
-  const [step, setStep] = useState(0);
-  const [selectedType, setSelectedType] = useState<string>("booking");
-  const [name, setName] = useState("New Booking Flow");
-  const [serviceLength, setServiceLength] = useState("60");
-  const [requiresDeposit, setRequiresDeposit] = useState(true);
-  const [isSaving, setIsSaving] = useState(false);
+  const [step, setStep] = useState(1);
+  const [formData, setFormData] = useState({
+    type: "",
+    name: "",
+    serviceLength: "",
+    requiresDeposit: false,
+  });
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
-  const currentType = automationTypes.find((t) => t.id === selectedType);
+  const automationTypes = [
+    {
+      type: "booking",
+      label: "Booking Flow",
+      desc: "Automated booking responses",
+      icon: Calendar,
+    },
+    {
+      type: "deposit",
+      label: "Deposit Collection",
+      desc: "Request deposits automatically",
+      icon: DollarSign,
+    },
+    {
+      type: "reminder",
+      label: "Reminders",
+      desc: "Send appointment reminders",
+      icon: Clock,
+    },
+    {
+      type: "review",
+      label: "Review Requests",
+      desc: "Request reviews after service",
+      icon: Star,
+    },
+  ];
 
-  const canGoNext = step === 0 ? !!selectedType : true;
-
-  const handleNext = () => {
-    if (step < steps.length - 1) {
-      setStep(step + 1);
-    }
-  };
-
-  const handleBack = () => {
-    if (step > 0) {
-      setStep(step - 1);
-    }
-  };
-
-  const handleSave = async () => {
-    setIsSaving(true);
-
-    const payload = {
-      type: selectedType,
-      name,
-      serviceLength: Number(serviceLength),
-      requiresDeposit,
-      createdAt: new Date().toISOString(),
-    };
-
-    const result = await saveAutomation(payload);
-
-    setIsSaving(false);
-
-    if (result.success) {
-      alert("Automation saved successfully!");
-      // OPTIONAL: Close panel or reset form later
-    } else {
-      alert("Error saving automation. Check console.");
+  const handleSubmit = async () => {
+    setLoading(true);
+    try {
+      await addDoc(collection(db, "automations"), {
+        ...formData,
+        serviceLength: parseInt(formData.serviceLength),
+        active: true,
+        triggers: 0,
+        createdAt: serverTimestamp(),
+      });
+      navigate("/automations");
+    } catch (error) {
+      console.error("Error creating automation:", error);
+      alert("Failed to create automation");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="text-white space-y-6">
-      {/* Step indicator */}
-      <div className="flex items-center gap-2 text-sm text-gray-400">
-        {steps.map((label, index) => (
-          <div key={label} className="flex items-center gap-2">
-            <div
-              className={`w-6 h-6 rounded-full flex items-center justify-center text-xs border ${
-                index === step
-                  ? "bg-[#4F8BFF] border-[#4F8BFF] text-white"
-                  : index < step
-                  ? "bg-green-500 border-green-500 text-white"
-                  : "border-gray-500 text-gray-400"
-              }`}
-            >
-              {index + 1}
-            </div>
-            <span
-              className={
-                index === step ? "text-white font-medium" : "text-gray-400"
-              }
-            >
-              {label}
-            </span>
-            {index < steps.length - 1 && (
-              <div className="w-6 h-px bg-gray-600 mx-1" />
-            )}
-          </div>
-        ))}
+    <div className="flex flex-col h-screen bg-black">
+      <div className="h-16 bg-neutral-950/50 backdrop-blur-xl border-b border-neutral-800/50 flex items-center justify-between px-8">
+        <h1 className="text-[20px] font-light tracking-tight">Create Automation</h1>
+        <button
+          onClick={() => navigate("/automations")}
+          className="text-neutral-400 hover:text-white transition-colors duration-300"
+        >
+          <X className="w-5 h-5" />
+        </button>
       </div>
 
-      {/* Step content */}
-      {step === 0 && (
-        <div className="space-y-4">
-          <h3 className="text-lg font-semibold">What do you want to automate?</h3>
-          <p className="text-gray-400 text-sm">
-            Choose the type of automation. You can create multiple later.
-          </p>
+      <div className="flex-1 overflow-auto flex items-center justify-center p-6">
+        <div className="bg-neutral-900 border border-neutral-800/50 rounded-2xl max-w-2xl w-full">
+          <div className="p-6 border-b border-neutral-800/50">
+            <h3 className="text-[24px] font-light mb-1">Create Automation</h3>
+            <p className="text-[13px] text-neutral-500">Step {step} of 3</p>
+          </div>
 
-          <div className="space-y-3 mt-2">
-            {automationTypes.map((type) => (
-              <button
-                key={type.id}
-                type="button"
-                onClick={() => setSelectedType(type.id)}
-                className={`w-full text-left px-4 py-3 rounded-lg border transition ${
-                  selectedType === type.id
-                    ? "border-[#4F8BFF] bg-[#141b2a]"
-                    : "border-white/10 bg-[#0f1623] hover:bg-[#141b2a]"
-                }`}
-              >
-                <div className="font-semibold">{type.label}</div>
-                <div className="text-xs text-gray-400 mt-1">
-                  {type.description}
+          <div className="p-8">
+            {/* Step 1: Select Type */}
+            {step === 1 && (
+              <div className="space-y-6">
+                <div>
+                  <label className="block text-[13px] text-neutral-400 mb-3 font-medium">
+                    Select Automation Type
+                  </label>
+                  <div className="grid grid-cols-2 gap-4">
+                    {automationTypes.map((option) => {
+                      const Icon = option.icon;
+                      return (
+                        <button
+                          key={option.type}
+                          onClick={() => {
+                            setFormData({ ...formData, type: option.type });
+                            setStep(2);
+                          }}
+                          className="bg-neutral-800/50 border border-neutral-700/50 rounded-lg p-5 text-left hover:border-cyan-400/50 hover:bg-neutral-800/70 transition-all duration-300 group"
+                        >
+                          <Icon className="w-6 h-6 text-cyan-400 mb-3" />
+                          <div className="text-[15px] font-medium text-white mb-1">
+                            {option.label}
+                          </div>
+                          <div className="text-[12px] text-neutral-500">{option.desc}</div>
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
-              </button>
-            ))}
+              </div>
+            )}
+
+            {/* Step 2: Details */}
+            {step === 2 && (
+              <div className="space-y-6">
+                <div>
+                  <label className="block text-[13px] text-neutral-400 mb-2 font-medium">
+                    Automation Name
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    placeholder="e.g., New Client Booking Flow"
+                    className="w-full bg-neutral-950 border border-neutral-800 rounded-lg px-4 py-3 text-white placeholder-neutral-600 focus:outline-none focus:border-cyan-400 transition-colors duration-300"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[13px] text-neutral-400 mb-2 font-medium">
+                    Service Duration (minutes)
+                  </label>
+                  <input
+                    type="number"
+                    value={formData.serviceLength}
+                    onChange={(e) =>
+                      setFormData({ ...formData, serviceLength: e.target.value })
+                    }
+                    placeholder="60"
+                    className="w-full bg-neutral-950 border border-neutral-800 rounded-lg px-4 py-3 text-white placeholder-neutral-600 focus:outline-none focus:border-cyan-400 transition-colors duration-300"
+                  />
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <input
+                    type="checkbox"
+                    id="deposit"
+                    checked={formData.requiresDeposit}
+                    onChange={(e) =>
+                      setFormData({ ...formData, requiresDeposit: e.target.checked })
+                    }
+                    className="w-4 h-4 rounded border-neutral-700 bg-neutral-950 text-cyan-400 focus:ring-cyan-400"
+                  />
+                  <label htmlFor="deposit" className="text-[14px] text-neutral-300">
+                    Require deposit payment
+                  </label>
+                </div>
+
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => setStep(1)}
+                    className="flex-1 bg-neutral-800 text-white py-3 rounded-lg font-medium hover:bg-neutral-700 transition-all duration-300"
+                  >
+                    Back
+                  </button>
+                  <button
+                    onClick={() => setStep(3)}
+                    disabled={!formData.name || !formData.serviceLength}
+                    className="flex-1 bg-gradient-to-b from-cyan-400 to-cyan-500 text-black py-3 rounded-lg font-semibold hover:from-cyan-300 hover:to-cyan-400 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    Continue
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Step 3: Review */}
+            {step === 3 && (
+              <div className="space-y-6">
+                <div className="bg-neutral-950/50 border border-neutral-800/50 rounded-lg p-6">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-10 h-10 rounded-full bg-cyan-400/20 flex items-center justify-center">
+                      <Check className="w-5 h-5 text-cyan-400" />
+                    </div>
+                    <div>
+                      <div className="text-[16px] font-medium">Automation Ready</div>
+                      <div className="text-[12px] text-neutral-500">Review and activate</div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-3 text-[13px]">
+                    <div className="flex justify-between">
+                      <span className="text-neutral-500">Type:</span>
+                      <span className="text-white capitalize">{formData.type}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-neutral-500">Name:</span>
+                      <span className="text-white">{formData.name}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-neutral-500">Duration:</span>
+                      <span className="text-white">{formData.serviceLength} minutes</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-neutral-500">Deposit:</span>
+                      <span className="text-white">
+                        {formData.requiresDeposit ? "Required" : "Not required"}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => setStep(2)}
+                    disabled={loading}
+                    className="flex-1 bg-neutral-800 text-white py-3 rounded-lg font-medium hover:bg-neutral-700 transition-all duration-300"
+                  >
+                    Back
+                  </button>
+                  <button
+                    onClick={handleSubmit}
+                    disabled={loading}
+                    className="flex-1 bg-gradient-to-b from-cyan-400 to-cyan-500 text-black py-3 rounded-lg font-semibold hover:from-cyan-300 hover:to-cyan-400 transition-all duration-300 disabled:opacity-50"
+                  >
+                    {loading ? "Creating..." : "Activate Automation"}
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
-        </div>
-      )}
-
-      {step === 1 && (
-        <div className="space-y-4">
-          <h3 className="text-lg font-semibold">Basic details</h3>
-          <p className="text-gray-400 text-sm">
-            Name your automation and add the key details for the AI.
-          </p>
-
-          <div className="space-y-3 mt-2 text-sm">
-            {/* Name */}
-            <div>
-              <label className="block text-gray-300 mb-1">Automation name</label>
-              <input
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="w-full bg-[#141b29] border border-white/10 rounded-lg px-3 py-2 text-gray-100 outline-none"
-              />
-            </div>
-
-            {/* Service length */}
-            <div>
-              <label className="block text-gray-300 mb-1">
-                Default service length (minutes)
-              </label>
-              <input
-                type="number"
-                value={serviceLength}
-                onChange={(e) => setServiceLength(e.target.value)}
-                className="w-full bg-[#141b29] border border-white/10 rounded-lg px-3 py-2 text-gray-100 outline-none"
-              />
-            </div>
-
-            {/* Deposit toggle */}
-            <div className="flex items-center gap-2 mt-2">
-              <input
-                id="deposit"
-                type="checkbox"
-                checked={requiresDeposit}
-                onChange={(e) => setRequiresDeposit(e.target.checked)}
-                className="w-4 h-4"
-              />
-              <label htmlFor="deposit" className="text-gray-300 text-sm">
-                Require deposit to confirm booking
-              </label>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {step === 2 && (
-        <div className="space-y-4 text-sm">
-          <h3 className="text-lg font-semibold">Review & save</h3>
-          <p className="text-gray-400">
-            Here’s how this automation will behave. The AI engine will use this
-            as the base configuration.
-          </p>
-
-          <div className="bg-[#141b29] border border-white/10 rounded-lg p-4 space-y-2">
-            <div>
-              <span className="text-gray-400">Type: </span>
-              <span className="text-white font-medium">
-                {currentType?.label}
-              </span>
-            </div>
-            <div>
-              <span className="text-gray-400">Name: </span>
-              <span className="text-white font-medium">{name}</span>
-            </div>
-            <div>
-              <span className="text-gray-400">Service length: </span>
-              <span className="text-white font-medium">
-                {serviceLength} minutes
-              </span>
-            </div>
-            <div>
-              <span className="text-gray-400">Deposit required: </span>
-              <span className="text-white font-medium">
-                {requiresDeposit ? "Yes" : "No"}
-              </span>
-            </div>
-          </div>
-
-          <div className="bg-[#0f1623] border border-dashed border-[#4F8BFF]/60 rounded-lg p-4 mt-3">
-            <div className="text-xs text-gray-300 mb-2">Example AI message:</div>
-            <div className="text-xs text-gray-200 italic">
-              “Great! I can book that for you. Our {name.toLowerCase()} is{" "}
-              {serviceLength} minutes. To secure your spot, a{" "}
-              {requiresDeposit ? "small deposit" : "no deposit"} is required.
-              Which day works best for you?”
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Footer actions */}
-      <div className="flex justify-between pt-2 border-t border-white/10 mt-4">
-        {/* Back button */}
-        <button
-          type="button"
-          onClick={handleBack}
-          disabled={step === 0}
-          className={`text-sm px-3 py-2 rounded-lg border ${
-            step === 0
-              ? "border-transparent text-gray-500 cursor-default"
-              : "border-white/20 text-gray-200 hover:bg-white/5"
-          }`}
-        >
-          Back
-        </button>
-
-        {/* Next / Save */}
-        <div className="flex gap-2">
-          {step < steps.length - 1 && (
-            <button
-              type="button"
-              onClick={handleNext}
-              disabled={!canGoNext}
-              className={`text-sm px-4 py-2 rounded-lg bg-[#4F8BFF] text-white font-medium ${
-                !canGoNext ? "opacity-60 cursor-not-allowed" : ""
-              }`}
-            >
-              Next
-            </button>
-          )}
-
-          {step === steps.length - 1 && (
-            <button
-              type="button"
-              onClick={handleSave}
-              className="text-sm px-4 py-2 rounded-lg bg-green-500 text-white font-medium"
-            >
-              {isSaving ? "Saving..." : "Save Automation (MVP)"}
-            </button>
-          )}
         </div>
       </div>
     </div>
