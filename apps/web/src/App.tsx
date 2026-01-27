@@ -7,6 +7,7 @@ import {
   Navigate,
   useLocation,
   useNavigate,
+  Link,
 } from "react-router-dom";
 
 import AppShell from "./layouts/AppShell";
@@ -185,12 +186,12 @@ function LoginInline() {
             </span>
           </label>
 
-          <a
-            href="/auth/reset"
+          <Link
+            to="/auth/reset"
             className="text-[13px] font-light text-neutral-300/80 hover:text-neutral-200 transition-all duration-[700ms]"
           >
             Forgot password
-          </a>
+          </Link>
         </div>
 
         {error ? (
@@ -204,12 +205,12 @@ function LoginInline() {
         </PrimaryButton>
 
         <div className="pt-2 text-center">
-          <a
-            href="/auth/signup"
+          <Link
+            to="/auth/signup"
             className="text-[13px] font-light text-neutral-300/80 hover:text-neutral-200 transition-all duration-[700ms]"
           >
             Create an account
-          </a>
+          </Link>
         </div>
       </form>
     </AuthFrame>
@@ -286,12 +287,12 @@ function SignupInline() {
         </PrimaryButton>
 
         <div className="pt-2 text-center">
-          <a
-            href="/auth/login"
+          <Link
+            to="/auth/login"
             className="text-[13px] font-light text-neutral-300/80 hover:text-neutral-200 transition-all duration-[700ms]"
           >
             Back to sign in
-          </a>
+          </Link>
         </div>
       </form>
     </AuthFrame>
@@ -353,12 +354,12 @@ function ResetPasswordInline() {
         </PrimaryButton>
 
         <div className="pt-2 text-center">
-          <a
-            href="/auth/login"
+          <Link
+            to="/auth/login"
             className="text-[13px] font-light text-neutral-300/80 hover:text-neutral-200 transition-all duration-[700ms]"
           >
             Back to sign in
-          </a>
+          </Link>
         </div>
       </form>
     </AuthFrame>
@@ -387,11 +388,14 @@ export default function App() {
               <Route path="automations" element={<AutomationsPage />} />
               <Route path="automations/new" element={<NewAutomationForm />} />
               <Route path="automations/:id" element={<AutomationDetails />} />
-              <Route path="automations/:id/edit" element={<EditAutomationForm />} />
+              <Route
+                path="automations/:id/edit"
+                element={<EditAutomationForm />}
+              />
               <Route path="settings" element={<SettingsPage />} />
             </Route>
 
-            {/* Protected: setup wizard (Outlet pattern, no children prop) */}
+            {/* Protected: setup wizard */}
             <Route path="/setup" element={<SetupWizard />} />
           </Route>
 
