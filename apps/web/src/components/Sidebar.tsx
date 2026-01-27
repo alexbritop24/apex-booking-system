@@ -1,4 +1,4 @@
-// src/components/Sidebar.tsx
+// apps/web/src/components/Sidebar.tsx
 import React from "react";
 import { NavLink } from "react-router-dom";
 import {
@@ -48,7 +48,8 @@ function NavItemLink({ item }: { item: NavItem }) {
 }
 
 export default function Sidebar() {
-  const { signOut, user } = useAuth();
+  // ✅ FIX: alias logout → signOut
+  const { logout: signOut, user } = useAuth();
 
   const operations: NavItem[] = [
     { path: "/", label: "Dashboard", icon: LayoutDashboard },
