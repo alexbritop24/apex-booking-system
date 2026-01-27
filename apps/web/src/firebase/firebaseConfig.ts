@@ -2,20 +2,17 @@ import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
+// ✅ Vite environment variables (from Vercel / local .env.*)
 const firebaseConfig = {
-  apiKey: "AIzaSyCh7I10qcj02vaxbpYQ2WY9btgbBLNNySE",
-  authDomain: "apexbookingsystem.firebaseapp.com",
-  projectId: "apexbookingsystem",
-  storageBucket: "apexbookingsystem.appspot.com",
-  messagingSenderId: "508198193114",
-  appId: "1:508198193114:web:095655bb66c3910ede62e3",
-  measurementId: "G-NNE0MMVJN9",
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
 };
 
 const app = initializeApp(firebaseConfig);
 
-// ✅ AUTH (THIS WAS MISSING)
 export const auth = getAuth(app);
-
-// ✅ FIRESTORE
 export const db = getFirestore(app);
