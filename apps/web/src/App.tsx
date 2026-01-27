@@ -223,13 +223,23 @@ function SignupInline() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState(""); // ✅ NEW
   const [remember, setRemember] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
+  const passwordsMatch =
+    password.length > 0 && confirmPassword.length > 0 && password === confirmPassword;
+
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
+
+    if (password !== confirmPassword) {
+      setError("Passwords do not match.");
+      return;
+    }
+
     setBusy(true);
     try {
       await signUp({ email, password, remember });
@@ -264,6 +274,23 @@ function SignupInline() {
           autoComplete="new-password"
         />
 
+        {/* ✅ NEW: Confirm password */}
+        <Field
+          label="Confirm password"
+          type="password"
+          value={confirmPassword}
+          onChange={setConfirmPassword}
+          placeholder="Re-type password"
+          autoComplete="new-password"
+        />
+
+        {/* Optional inline hint */}
+        {confirmPassword.length > 0 && !passwordsMatch ? (
+          <div className="text-[12px] font-light text-red-300/80">
+            Passwords do not match.
+          </div>
+        ) : null}
+
         <label className="flex items-center gap-3 cursor-pointer select-none">
           <input
             type="checkbox"
@@ -282,7 +309,15 @@ function SignupInline() {
           </div>
         ) : null}
 
-        <PrimaryButton disabled={busy || !email || password.length < 6}>
+        <PrimaryButton
+          disabled={
+            busy ||
+            !email ||
+            password.length < 6 ||
+            confirmPassword.length < 6 ||
+            password !== confirmPassword
+          }
+        >
           {busy ? "Creating…" : "Create account"}
         </PrimaryButton>
 
