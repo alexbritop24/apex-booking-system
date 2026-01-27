@@ -1,5 +1,5 @@
-// apps/web/src/components/EmptyState.tsx
 import type { LucideIcon } from "lucide-react";
+import React from "react";
 
 type EmptyStateProps = {
   icon?: LucideIcon;
@@ -17,24 +17,24 @@ export default function EmptyState({
   return (
     <div className="w-full rounded-2xl border border-neutral-800/40 bg-neutral-950/30 backdrop-blur-sm p-10">
       <div className="mx-auto max-w-md text-center space-y-6">
-        {Icon ? (
+        {Icon && (
           <div className="mx-auto h-14 w-14 rounded-2xl border border-neutral-800/40 bg-black/30 grid place-items-center">
             <Icon className="h-6 w-6 text-neutral-300" />
           </div>
-        ) : null}
+        )}
 
         <div className="space-y-2">
           <div className="text-xl font-extralight tracking-tight text-neutral-100">
             {title}
           </div>
-          {description ? (
+          {description && (
             <div className="text-[13px] font-light text-neutral-300/70 leading-relaxed">
               {description}
             </div>
-          ) : null}
+          )}
         </div>
 
-        {action ? <div className="pt-2">{action}</div> : null}
+        {action && <div className="pt-2">{action}</div>}
       </div>
     </div>
   );
