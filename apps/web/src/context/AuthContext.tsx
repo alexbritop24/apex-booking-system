@@ -9,7 +9,7 @@ import {
   sendPasswordResetEmail,
   setPersistence,
   signInWithEmailAndPassword,
-  signOut,
+  signOut as firebaseSignOut,
   type User,
 } from "firebase/auth";
 
@@ -43,6 +43,11 @@ type AuthContextValue = {
   signIn: (args: SignInArgs) => Promise<void>;
   signUp: (args: SignUpArgs) => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
+
+  // ✅ Standard name used across the app (Sidebar/App)
+  signOut: () => Promise<void>;
+
+  // ✅ Back-compat alias (if any older file still calls logout)
   logout: () => Promise<void>;
 };
 
@@ -71,12 +76,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [auth]);
 
   const value = useMemo<AuthContextValue>(() => {
+    async function doSignOut() {
+      await firebaseSignOut(auth);
+    }
+
     return {
       status,
       user,
 
       async signIn({ email, password, remember }: SignInArgs) {
-        // Persistent sessions are controlled by Auth persistence mode.
         await setPersistence(
           auth,
           remember ? browserLocalPersistence : browserSessionPersistence
@@ -96,9 +104,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         await sendPasswordResetEmail(auth, email);
       },
 
-      async logout() {
-        await signOut(auth);
-      },
+      // ✅ preferred name
+      signOut: doSignOut,
+
+      // ✅ alias
+      logout: doSignOut,
     };
   }, [auth, status, user]);
 

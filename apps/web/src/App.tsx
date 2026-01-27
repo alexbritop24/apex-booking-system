@@ -386,14 +386,9 @@ export default function App() {
           </Route>
 
           {/* Onboarding */}
-          <Route
-            path="/setup"
-            element={
-              <ProtectedRoute>
-                <SetupWizard />
-              </ProtectedRoute>
-            }
-          />
+        <Route element={<ProtectedRoute />}>
+        <Route path="/setup" element={<SetupWizard />} />
+        </Route>
 
           {/* Fallback */}
           <Route path="*" element={<Navigate to="/" replace />} />
