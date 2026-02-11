@@ -8,4 +8,12 @@ export default defineConfig({
       '@': '/src',
     },
   },
+  test: {
+    environment: 'jsdom',
+    globals: true,
+    setupFiles: './src/setupTests.ts',
+    coverage: {
+      reporter: ['text', 'html', 'lcov'],
+    },
+  },
 });
