@@ -39,7 +39,7 @@ function AuthFrame({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-black text-neutral-200">
+    <div className="min-h-screen text-neutral-200">
       <div className="max-w-[1600px] mx-auto px-12 py-12">
         <div className="grid place-items-center min-h-[calc(100vh-96px)]">
           <div className="w-full max-w-[520px] rounded-2xl border border-neutral-800/40 bg-neutral-950/30 backdrop-blur-sm p-10 space-y-8">
@@ -111,11 +111,14 @@ function PrimaryButton({
       disabled={disabled}
       className={[
         "w-full rounded-2xl px-6 py-4",
-        "text-black text-[14px] tracking-tight font-light",
-        "transition-all duration-[700ms]",
-        "bg-gradient-to-b from-neutral-100 to-neutral-300",
-        "hover:scale-[1.02] hover:shadow-[0_0_0_1px_rgba(229,231,235,0.20)]",
-        "disabled:opacity-60 disabled:hover:scale-100",
+        "text-[14px] tracking-tight font-medium",
+        "text-neutral-900", // ✅ forced readable text
+        "bg-white",         // ✅ flat, reliable surface
+        "transition-all duration-200",
+        "hover:bg-neutral-100 hover:scale-[1.02]",
+        "disabled:opacity-100 disabled:cursor-not-allowed disabled:brightness-95 disabled:hover:scale-100",
+        "disabled:text-neutral-800",
+        "shadow-[0_1px_0_rgba(0,0,0,0.04)]",
       ].join(" ")}
     >
       {children}

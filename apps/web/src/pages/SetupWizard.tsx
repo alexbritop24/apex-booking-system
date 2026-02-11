@@ -33,11 +33,14 @@ function PrimaryCTA({
       onClick={onClick}
       className={[
         "inline-flex items-center justify-center gap-2 rounded-2xl px-7 py-4",
-        "text-black text-[14px] tracking-tight font-light",
+        "text-neutral-950 text-[14px] tracking-tight font-medium",
         "transition-all duration-[700ms]",
         "bg-gradient-to-b from-neutral-100 to-neutral-300",
         "hover:scale-[1.02] hover:shadow-[0_0_0_1px_rgba(229,231,235,0.20)]",
-        "disabled:opacity-60 disabled:hover:scale-100",
+        "disabled:opacity-100",
+        "disabled:cursor-not-allowed",
+        "disabled:brightness-95",
+        "disabled:text-neutral-800",
       ].join(" ")}
     >
       {children}
